@@ -1,13 +1,14 @@
 add_library(opentelemetry_exporter_otprotocol src/otlp_recordable.cc
                                               src/otlp_exporter.cc)
-
+find_package(ppconsul REQUIRED)
 set_target_properties(opentelemetry_exporter_otprotocol
                       PROPERTIES EXPORT_NAME otlp_exporter)
 
 target_link_libraries(
   opentelemetry_exporter_otprotocol
   PUBLIC opentelemetry_trace opentelemetry_resources opentelemetry_proto
-         protobuf::libprotobuf gRPC::grpc++)
+         protobuf::libprotobuf gRPC::grpc++
+         ppconsul)
 
 install(
   TARGETS opentelemetry_exporter_otprotocol
