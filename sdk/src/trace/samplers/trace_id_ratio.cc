@@ -28,8 +28,8 @@ using ppconsul::Consul;
 using ppconsul::Consistency;
 using namespace ppconsul::kv;
 using namespace std::chrono;
-long lastUpdatedTime = 0;
 
+long lastUpdatedTime = 0;
 
 namespace trace_api = opentelemetry::trace;
 
@@ -121,11 +121,12 @@ SamplingResult TraceIdRatioBasedSampler::ShouldSample(
 {
   double rate = getSamplingRate();
   std::cout<< rate <<" config->sampler.ratio.\n";
-  threshold_ = CalculateThreshold(rate);
-  if (threshold_ == 0)
+  uint64_t cur_threshold_ = CalculateThreshold(rate);
+  description_ = "TraceIdRatioBasedSampler{" + std::to_string(rate) + "}";
+  if (cur_threshold_ == 0)
     return {Decision::DROP, nullptr};
 
-  if (CalculateThresholdFromBuffer(trace_id) <= threshold_)
+  if (CalculateThresholdFromBuffer(trace_id) <= cur_threshold_)
   {
     return {Decision::RECORD_AND_SAMPLE, nullptr};
   }
