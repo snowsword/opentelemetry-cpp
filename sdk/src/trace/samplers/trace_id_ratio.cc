@@ -18,6 +18,18 @@
 #include <cmath>
 #include <cstdint>
 #include <stdexcept>
+#include "ppconsul/kv.h"
+#include <iostream>   // std::cout
+#include <string>     // std::string, std::stod
+#include <chrono>
+
+
+using ppconsul::Consul;
+using ppconsul::Consistency;
+using namespace ppconsul::kv;
+using namespace std::chrono;
+long lastUpdatedTime = 0;
+
 
 namespace trace_api = opentelemetry::trace;
 
@@ -83,6 +95,22 @@ TraceIdRatioBasedSampler::TraceIdRatioBasedSampler(double ratio)
   description_ = "TraceIdRatioBasedSampler{" + std::to_string(ratio) + "}";
 }
 
+static double getSamplingRate(){
+
+    ppconsul::Consul consul("http://10.213.211.43:8500",kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
+    Kv kv(consul,kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
+    return stod(kv.get("hot_config/coutrace/nginx/default" , "1", kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6"));
+    //}00
+    //return 1.0;
+}
+
+static long double curtime() {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(
+    std::chrono::system_clock::now().time_since_epoch()
+  ).count();
+}
+
+
 SamplingResult TraceIdRatioBasedSampler::ShouldSample(
     const trace_api::SpanContext & /*parent_context*/,
     trace_api::TraceId trace_id,
@@ -91,6 +119,9 @@ SamplingResult TraceIdRatioBasedSampler::ShouldSample(
     const opentelemetry::common::KeyValueIterable & /*attributes*/,
     const trace_api::SpanContextKeyValueIterable & /*links*/) noexcept
 {
+  double rate = getSamplingRate();
+  std::cout<< rate <<" config->sampler.ratio.\n";
+  threshold_ = CalculateThreshold(rate);
   if (threshold_ == 0)
     return {Decision::DROP, nullptr};
 
