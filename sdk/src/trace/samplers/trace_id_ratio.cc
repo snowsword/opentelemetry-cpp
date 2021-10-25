@@ -123,7 +123,8 @@ SamplingResult TraceIdRatioBasedSampler::ShouldSample(
   std::cout<< rate <<" config->sampler.ratio.\n";
   uint64_t cur_threshold_ = CalculateThreshold(rate);
   description_ = "TraceIdRatioBasedSampler{" + std::to_string(rate) + "}";
-  if (cur_threshold_ == 0)
+  return {Decision::DROP, nullptr};
+  /*if (cur_threshold_ == 0)
     return {Decision::DROP, nullptr};
 
   if (CalculateThresholdFromBuffer(trace_id) <= cur_threshold_)
@@ -131,7 +132,7 @@ SamplingResult TraceIdRatioBasedSampler::ShouldSample(
     return {Decision::RECORD_AND_SAMPLE, nullptr};
   }
 
-  return {Decision::DROP, nullptr};
+  return {Decision::DROP, nullptr};*/
 }
 
 nostd::string_view TraceIdRatioBasedSampler::GetDescription() const noexcept
