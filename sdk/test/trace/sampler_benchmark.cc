@@ -55,7 +55,7 @@ void BM_TraceIdRatioBasedSamplerConstruction(benchmark::State &state)
 {
   while (state.KeepRunning())
   {
-    benchmark::DoNotOptimize(TraceIdRatioBasedSampler(0.01));
+    benchmark::DoNotOptimize(TraceIdRatioBasedSampler(0.01, "default"));
   }
 }
 BENCHMARK(BM_TraceIdRatioBasedSamplerConstruction);
@@ -111,7 +111,7 @@ BENCHMARK(BM_ParentBasedSamplerShouldSample);
 
 void BM_TraceIdRatioBasedSamplerShouldSample(benchmark::State &state)
 {
-  TraceIdRatioBasedSampler sampler(0.01);
+  TraceIdRatioBasedSampler sampler(0.01, "default");
 
   BenchmarkShouldSampler(sampler, state);
 }
