@@ -120,9 +120,9 @@ TraceIdRatioBasedSampler::ShouldSample(
     const opentelemetry::common::KeyValueIterable & /*attributes*/,
     const trace_api::SpanContextKeyValueIterable & /*links*/) noexcept
 {
-  double rate = getSamplingRate();
+  double rate = getSamplingRate(cmdb);
   std::cout<< rate <<" config->sampler.ratio.\n";
-  uint64_t cur_threshold_ = CalculateThreshold(rate, cmdb);
+  uint64_t cur_threshold_ = CalculateThreshold(rate);
   description_ = "TraceIdRatioBasedSampler{" + std::to_string(rate) + "}";
   if (cur_threshold_ == 0)
     return {Decision::DROP, nullptr};
