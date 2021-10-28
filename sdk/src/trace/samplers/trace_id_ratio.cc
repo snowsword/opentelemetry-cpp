@@ -116,7 +116,7 @@ long curtime() {
 
 double getSamplingRate(std::string cmdb){
     long cur_timestamp = curtime();
-    if((cur_timestamp - lastUpdatedTime) > 60 ){
+    if((cur_timestamp - lastUpdatedTime) > 3*60*1000 ){
       lastUpdatedTime = cur_timestamp;
       ppconsul::Consul consul("http://10.213.211.43:8500",kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
       Kv kv(consul,kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
