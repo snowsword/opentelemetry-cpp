@@ -123,7 +123,7 @@ long double curtime() {
 }
 
 
-TraceIdRatioBasedSampler::ShouldSample(
+SamplingResult TraceIdRatioBasedSampler::ShouldSample(
     const trace_api::SpanContext & /*parent_context*/,
     trace_api::TraceId trace_id,
     nostd::string_view /*name*/,
