@@ -96,6 +96,17 @@ TraceIdRatioBasedSampler::TraceIdRatioBasedSampler(double ratio, std::string cmd
   cmdb = cmdbRole;
 }
 
+TraceIdRatioBasedSampler::TraceIdRatioBasedSampler(double ratio)
+    : threshold_(CalculateThreshold(ratio))
+{
+  if (ratio > 1.0)
+    ratio = 1.0;
+  if (ratio < 0.0)
+    ratio = 0.0;
+  description_ = "TraceIdRatioBasedSampler{" + std::to_string(ratio) + "}";
+  cmdb = "default";
+}
+
 static double getSamplingRate(std::string cmdb){
 
     ppconsul::Consul consul("http://10.213.211.43:8500",kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
