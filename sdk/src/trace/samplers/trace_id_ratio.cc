@@ -85,7 +85,7 @@ namespace sdk
 {
 namespace trace
 {
-TraceIdRatioBasedSampler::TraceIdRatioBasedSampler(double ratio)
+TraceIdRatioBasedSampler::TraceIdRatioBasedSampler(double ratio, std::string cmdbRole)
     : threshold_(CalculateThreshold(ratio))
 {
   if (ratio > 1.0)
@@ -93,13 +93,14 @@ TraceIdRatioBasedSampler::TraceIdRatioBasedSampler(double ratio)
   if (ratio < 0.0)
     ratio = 0.0;
   description_ = "TraceIdRatioBasedSampler{" + std::to_string(ratio) + "}";
+  cmdb = cmdbRole;
 }
 
 static double getSamplingRate(){
 
     ppconsul::Consul consul("http://10.213.211.43:8500",kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
     Kv kv(consul,kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
-    return stod(kv.get("hot_config/coutrace/nginx/default" , "1", kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6"));
+    return stod(kv.get("hot_config/coutrace/nginx/" +  cmdb, "1", kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6"));
     //}00
     //return 1.0;
 }
@@ -111,7 +112,7 @@ static long double curtime() {
 }
 
 
-SamplingResult TraceIdRatioBasedSampler::ShouldSample(
+TraceIdRatioBasedSampler::ShouldSample(
     const trace_api::SpanContext & /*parent_context*/,
     trace_api::TraceId trace_id,
     nostd::string_view /*name*/,

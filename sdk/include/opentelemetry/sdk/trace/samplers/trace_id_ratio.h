@@ -47,6 +47,7 @@ public:
 
 private:
   std::string description_;
+  std::string cmdb;
   const uint64_t threshold_;
 };
 }  // namespace trace
