@@ -107,20 +107,26 @@ TraceIdRatioBasedSampler::TraceIdRatioBasedSampler(double ratio)
   cmdb = "default";
 }
 
-double getSamplingRate(std::string cmdb){
-
-    ppconsul::Consul consul("http://10.213.211.43:8500",kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
-    Kv kv(consul,kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
-    return stod(kv.get("hot_config/coutrace/nginx/" +  cmdb, "0.01", kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6"));
-    //}00
-    //return 1.0;
-}
-
-long double curtime() {
+long curtime() {
   return std::chrono::duration_cast<std::chrono::milliseconds>(
     std::chrono::system_clock::now().time_since_epoch()
   ).count();
 }
+
+
+double getSamplingRate(std::string cmdb){
+    long cur_timestamp = curtime();
+    if((cur_timestamp - lastUpdatedTime) > 60 ){
+      lastUpdatedTime = cur_timestamp;
+      ppconsul::Consul consul("http://10.213.211.43:8500",kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
+      Kv kv(consul,kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
+      
+      return stod(kv.get("hot_config/coutrace/nginx/" +  cmdb, "0.01", kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6"));
+    }
+    //}00
+    //return 1.0;
+}
+
 
 
 SamplingResult TraceIdRatioBasedSampler::ShouldSample(
