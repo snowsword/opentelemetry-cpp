@@ -96,7 +96,7 @@ TraceIdRatioBasedSampler::TraceIdRatioBasedSampler(double ratio, std::string cmd
   cmdb = cmdbRole;
 }
 
-static double getSamplingRate(){
+static double getSamplingRate(std::string cmdb){
 
     ppconsul::Consul consul("http://10.213.211.43:8500",kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
     Kv kv(consul,kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
@@ -122,7 +122,7 @@ TraceIdRatioBasedSampler::ShouldSample(
 {
   double rate = getSamplingRate();
   std::cout<< rate <<" config->sampler.ratio.\n";
-  uint64_t cur_threshold_ = CalculateThreshold(rate);
+  uint64_t cur_threshold_ = CalculateThreshold(rate, cmdb);
   description_ = "TraceIdRatioBasedSampler{" + std::to_string(rate) + "}";
   if (cur_threshold_ == 0)
     return {Decision::DROP, nullptr};
