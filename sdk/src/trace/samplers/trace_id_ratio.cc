@@ -107,7 +107,7 @@ TraceIdRatioBasedSampler::TraceIdRatioBasedSampler(double ratio)
   cmdb = "default";
 }
 
-static double getSamplingRate(std::string cmdb){
+double getSamplingRate(std::string cmdb){
 
     ppconsul::Consul consul("http://10.213.211.43:8500",kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
     Kv kv(consul,kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
@@ -116,7 +116,7 @@ static double getSamplingRate(std::string cmdb){
     //return 1.0;
 }
 
-static long double curtime() {
+long double curtime() {
   return std::chrono::duration_cast<std::chrono::milliseconds>(
     std::chrono::system_clock::now().time_since_epoch()
   ).count();

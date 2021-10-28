@@ -25,7 +25,7 @@ public:
    * @throws invalid_argument if ratio is out of bounds [0.0, 1.0]
    */
   explicit TraceIdRatioBasedSampler(double ratio, std::string cmdbRole);
-  explicit TraceIdRatioBasedSampler(double ratio);
+  TraceIdRatioBasedSampler(double ratio);
 
   /**
    * @return Returns either RECORD_AND_SAMPLE or DROP based on current
@@ -40,7 +40,7 @@ public:
       trace_api::SpanKind /*span_kind*/,
       const opentelemetry::common::KeyValueIterable & /*attributes*/,
       const trace_api::SpanContextKeyValueIterable & /*links*/) noexcept override;
-
+  
   /**
    * @return Description MUST be TraceIdRatioBasedSampler{0.000100}
    */
