@@ -29,7 +29,8 @@ using ppconsul::Consistency;
 using namespace ppconsul::kv;
 using namespace std::chrono;
 
-long updatedTime = 0;
+long lastUpdatedTime = 0;
+double lastest_ratio= 0.01;
 
 namespace trace_api = opentelemetry::trace;
 
@@ -107,7 +108,7 @@ TraceIdRatioBasedSampler::TraceIdRatioBasedSampler(double ratio)
   cmdb = "default";
 }
 
-long curtime() {
+long double curtime() {
   return std::chrono::duration_cast<std::chrono::milliseconds>(
     std::chrono::system_clock::now().time_since_epoch()
   ).count();
@@ -116,13 +117,15 @@ long curtime() {
 
 double getSamplingRate(std::string cmdb){
     long cur_timestamp = curtime();
-    if((cur_timestamp - updatedTime) > 3*60*1000 ){
-      updatedTime = cur_timestamp;
+
+    if((cur_timestamp - lastUpdatedTime) > 180000 ){
+      lastUpdatedTime = cur_timestamp;
       ppconsul::Consul consul("http://10.213.211.43:8500",kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
       Kv kv(consul,kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
       
       return stod(kv.get("hot_config/coutrace/nginx/" +  cmdb, "0.01", kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6"));
     }
+    return -1.0;
     //}00
     //return 1.0;
 }
@@ -138,9 +141,12 @@ SamplingResult TraceIdRatioBasedSampler::ShouldSample(
     const trace_api::SpanContextKeyValueIterable & /*links*/) noexcept
 {
   double rate = getSamplingRate(cmdb);
-  std::cout<< rate <<" config->sampler.ratio.\n";
-  uint64_t cur_threshold_ = CalculateThreshold(rate);
-  description_ = "TraceIdRatioBasedSampler{" + std::to_string(rate) + "}";
+  if(rate != -1.0){
+     lastest_ratio = rate;
+  }
+  std::cout<< lastest_ratio <<" rate fro cc.\n";
+  uint64_t cur_threshold_ = CalculateThreshold(lastest_ratio);
+  description_ = "TraceIdRatioBasedSampler{" + std::to_string(lastest_ratio) + "}";
   if (cur_threshold_ == 0)
     return {Decision::DROP, nullptr};
 
