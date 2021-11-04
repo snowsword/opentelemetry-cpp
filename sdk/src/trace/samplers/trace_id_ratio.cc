@@ -119,8 +119,9 @@ double getSamplingRate(std::string cmdb){
     long cur_timestamp = curtime();
 
     if((cur_timestamp - lastUpdatedTime) > 180000 ){
-      std::cout<< std::to_string(cur_timestamp) <<"cur in sample rate cc.\n";
-      std::cout<< std::to_string(lastUpdatedTime) <<"lastUpdatedTime in sample rate cc.\n";
+      std::cout<< std::to_string(cur_timestamp) <<" cur in sample rate cc.\n";
+      std::cout<< std::to_string(lastUpdatedTime) <<" lastUpdatedTime in sample rate cc.\n";
+      std::cout<< cmdb <<" cmdb in sample rate cc.\n";
       lastUpdatedTime = cur_timestamp;
       ppconsul::Consul consul("http://10.213.211.43:8500",kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
       Kv kv(consul,kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
@@ -144,7 +145,7 @@ SamplingResult TraceIdRatioBasedSampler::ShouldSample(
 {
   double rate = getSamplingRate(cmdb);
   if(rate != -1.0){
-     std::cout<< lastest_ratio <<" rate fro cc.\n";
+     std::cout<< std::to_string(lastest_ratio) <<" rate in cc.\n";
      lastest_ratio = rate;
   }
 
