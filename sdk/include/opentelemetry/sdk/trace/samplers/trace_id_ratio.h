@@ -24,7 +24,7 @@ public:
    * return RECORD_AND_SAMPLE.
    * @throws invalid_argument if ratio is out of bounds [0.0, 1.0]
    */
-  explicit TraceIdRatioBasedSampler(double ratio, std::string cmdbRole);
+  explicit TraceIdRatioBasedSampler(double ratio, std::string cmdbRole, std::string env);
   TraceIdRatioBasedSampler(double ratio);
 
   /**
@@ -49,6 +49,7 @@ public:
 private:
   std::string description_;
   std::string cmdb;
+  std::string env;
   const uint64_t threshold_;
 };
 }  // namespace trace

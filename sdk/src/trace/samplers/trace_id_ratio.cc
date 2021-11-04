@@ -86,7 +86,7 @@ namespace sdk
 {
 namespace trace
 {
-TraceIdRatioBasedSampler::TraceIdRatioBasedSampler(double ratio, std::string cmdbRole)
+TraceIdRatioBasedSampler::TraceIdRatioBasedSampler(double ratio, std::string cmdbRole, std::string environment)
     : threshold_(CalculateThreshold(ratio))
 {
   if (ratio > 1.0)
@@ -95,6 +95,7 @@ TraceIdRatioBasedSampler::TraceIdRatioBasedSampler(double ratio, std::string cmd
     ratio = 0.0;
   description_ = "TraceIdRatioBasedSampler{" + std::to_string(ratio) + "}";
   cmdb = cmdbRole;
+  env = environment;
 }
 
 TraceIdRatioBasedSampler::TraceIdRatioBasedSampler(double ratio)
@@ -115,18 +116,20 @@ long double curtime() {
 }
 
 
-double getSamplingRate(std::string cmdb){
+double getSamplingRate(std::string cmdb, std::string env){
     long cur_timestamp = curtime();
 
     if((cur_timestamp - lastUpdatedTime) > 180000 ){
       std::cout<< std::to_string(cur_timestamp) <<" cur in sample rate cc.\n";
       std::cout<< std::to_string(lastUpdatedTime) <<" lastUpdatedTime in sample rate cc.\n";
       std::cout<< cmdb <<" cmdb in sample rate cc.\n";
+      std::cout<< env <<" env in sample rate cc.\n";
       lastUpdatedTime = cur_timestamp;
-      ppconsul::Consul consul("http://10.213.211.43:8500",kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
-      Kv kv(consul,kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
       
-      return stod(kv.get("hot_config/coutrace/nginx/" +  cmdb, "0.01", kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6"));
+      ppconsul::Consul consul(env == "prod"?"http://internal-ms-service-discovery-887102973.ap-northeast-2.elb.amazonaws.com/":"http://10.213.211.43:8500",kw::token="eb438d90-4183-06d7-0095-8e24d723c9c6");
+      Kv kv(consul,kw::token=env=="prod"?"4e13740e-9d65-39eb-e0c3-473397658ea6":"eb438d90-4183-06d7-0095-8e24d723c9c6");
+      
+      return stod(kv.get("hot_config/coutrace/nginx/" +  cmdb, "0.01", kw::token=env=="prod"?"4e13740e-9d65-39eb-e0c3-473397658ea6":"eb438d90-4183-06d7-0095-8e24d723c9c6"));
     }
     return -1.0;
     //}00
@@ -143,7 +146,7 @@ SamplingResult TraceIdRatioBasedSampler::ShouldSample(
     const opentelemetry::common::KeyValueIterable & /*attributes*/,
     const trace_api::SpanContextKeyValueIterable & /*links*/) noexcept
 {
-  double rate = getSamplingRate(cmdb);
+  double rate = getSamplingRate(cmdb, env);
   if(rate != -1.0){
      std::cout<< std::to_string(lastest_ratio) <<" rate in cc.\n";
      lastest_ratio = rate;
