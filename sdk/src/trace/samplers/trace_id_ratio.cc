@@ -120,24 +120,16 @@ double getSamplingRate(std::string cmdb, std::string env){
     long cur_timestamp = curtime();
 
     if((cur_timestamp - lastUpdatedTime) > 180000 ){
-      std::cout<< std::to_string(cur_timestamp) <<" cur in sample rate cc.\n";
-      std::cout<< std::to_string(lastUpdatedTime) <<" lastUpdatedTime in sample rate cc.\n";
-      std::cout<< cmdb <<" cmdb in sample rate cc.\n";
-      std::cout<< env <<" env in sample rate cc.\n";
       lastUpdatedTime = cur_timestamp;
       std::string cur_token = env=="prod"?"4e13740e-9d65-39eb-e0c3-473397658ea6":"eb438d90-4183-06d7-0095-8e24d723c9c6";
-      std::string cur_url = env == "prod"?"http://internal-ms-service-discovery-887102973.ap-northeast-2.elb.amazonaws.com/":"http://10.213.211.43:8500";
-      std::cout<< cur_token <<" cur_token in sample rate cc.\n";
-      std::cout<< cur_url <<" cur_url in sample rate cc.\n";
+      std::string cur_url = env == "prod"?"http://internal-ms-service-discovery-887102973.ap-northeast-2.elb.amazonaws.com/":"http://eb438d90-4183-06d7-0095-8e24d723c9c6:8500";
       ppconsul::Consul consul(cur_url,kw::token=cur_token);
       Kv kv(consul,kw::token=cur_token);
       
       return stod(kv.get("hot_config/coutrace/nginx/" +  cmdb, "0.01", kw::token=cur_token));
     }
     return -1.0;
-    //}00
-    //return 1.0;
-}
+
 
 
 
